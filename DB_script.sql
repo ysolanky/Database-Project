@@ -205,29 +205,72 @@ INSERT INTO HAS VALUES
 # QUERIES:
 
 # Query 1
-
+select t.teamname, t.budget, s.sponsorname, s.sponsorfunding
+from team t natural join sponsor s;
 
 # Query 2
+SELECT TeamID, TournamentID
+FROM ConsistsOf
+WHERE TeamID IN (SELECT TeamID
+					FROM Team
+					WHERE Budget >= 540000);
+                    
+# Query 3:
+select t.teamid, t.teamname, t.Noofplayers, e.employeetype, s.staffname
+from team t natural join employs e natural join staff s
+where s.staffage > 18;
 
-
-# Query 7
-SELECT DISTINCT p.playerfname, p.playerlname, p.dateofbirth, p.salary, p.noofmatchesplayed, team.teamname 
-from player p  
-inner join team on p.TeaMid = TEAM.TEAMid
-where p.salary <200000 and p.noofmatchesplayed < 20;
-
-# Query 8
+# Query 4:
 SELECT m.OfficialID, m.OfficialName, m.TournamentID, t.TournamentName
 FROM MatchOfficial m
 NATURAL JOIN Tournament t
 WHERE m.OfficialExperience >= 5 AND t.TournamentDivision = 1;
 
-# Query 9
+# Query 5:
+SELECT * 
+FROM Medical 
+UNION
+SELECT *
+FROM Coaching; 
+
+# Query 6:
+select m.officialId, m.officialname, m.officialCountry
+from tournament t
+natural join matchofficial m
+where m.officialExperience > 5;
+
+# Query 7
+SELECT DISTINCT p.playerfname, p.playerlname, p.dateofbirth, p.salary, p.noofmatchesplayed, team.teamname 
+from player p  
+inner join team on p.TeaMid = TEAM.TEAMid
+where p.noofmatchesplayed < 20
+group by p.playerfname, p.playerlname, p.dateofbirth, p.salary, p.noofmatchesplayed, team.teamname
+having p.salary > avg(p.salary);
+
+# Query 8
 SELECT SponsorID, TournamentID
 FROM Has
 WHERE TournamentID IN (SELECT TournamentID
 						FROM Tournament
                         WHERE NumberOfTeams >= 15)
- AND SponsorID IN (SELECT SPONSORID 
+AND SponsorID IN (SELECT SPONSORID 
 					FROM SPONSOR
                     WHERE SponsorFunding >= 500000);
+
+# Query 9:
+select p.playerFname, p.playerLname, p.Noofmatchesplayed, ps.playerposition
+from player p 
+join playerpos ps on ps.playerid = p.playerid
+where exists (select 1 
+				from team t 
+				where t.teamid = p.teamid and t.noofplayers > 20 and t.teamid in (select teamid 
+																					from employs 
+																					where employeetype = 'C'));
+                                                                                    
+# Query 10:
+select p.PlayerFName, p.PlayerLName, p.Gender,te.TeamID, te.TeamName, tou.TournamentID, tou.TournamentName
+from team te
+natural join tournament tou
+natural join player p 
+where te.TeamPoints >= 60
+and tou.TournamentCountry = "England";
